@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify repository docs
+        run: |
+          test -f README.md
+          test -f CONTRIBUTING.md
+          test -f SECURITY.md
+          test -f CODEOWNERS
+      - name: Basic text scan
+        run: |
+          ! grep -R --line-number -E "(AKIA|SECRET|PRIVATE KEY)" . || (echo "Potential secret pattern found" && exit 1)
