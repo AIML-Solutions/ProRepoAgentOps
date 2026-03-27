@@ -19,6 +19,9 @@ jobs:
           test -f CONTRIBUTING.md
           test -f SECURITY.md
           test -f CODEOWNERS
-      - name: Basic text scan
+      - name: Basic secret-pattern scan (excluding workflow files)
         run: |
-          ! grep -R --line-number -E "(AKIA|SECRET|PRIVATE KEY)" . || (echo "Potential secret pattern found" && exit 1)
+          if git grep -I -n -E 'AKIA[0-9A-Z]{16}|-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----' -- . ':!.github/workflows/*'; then
+            echo "Potential secret pattern found"
+            exit 1
+          fi
